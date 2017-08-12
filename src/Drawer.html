@@ -1,0 +1,111 @@
+<div
+  class="
+    svelte-drawer
+    side-{{ side }}
+    axis-{{ axis }}
+    {{ isOpen ? 'open' : 'closed' }}
+    {{ shouldTransition ? 'smooth' : '' }}
+  "
+  style="transform: translate3d({{ translate.x }}%, {{ translate.y }}%, 0);"
+  on:transitionend="set('temporarySmooth', undefined)"
+>{{ yield }}</div>
+
+{{#if scrim}}
+  <div
+    class="
+      svelte-drawer-scrim {{ !isOpen ? 'transparent' : '' }}
+      {{ shouldTransition ? 'smooth' : '' }}
+    "
+    on:click="set({ open: false })"
+  ></div>
+{{/if}}
+
+<script>
+const clamp = (min, max, n) => Math.max(min, Math.min(max, n))
+const isLeadingSide = side => side === 'left' || side === 'top'
+
+export default {
+  data () {
+    return {
+      side: 'left',
+      open: false, // true, false, 0 - 100 (percent)
+      smooth: true,
+      scrim: true
+      //push: false // false, element/ref // TODO: push other content
+    }
+  },
+
+  computed: {
+    percentOpen: open => !open ? 0 : (open === true ? 100 : clamp(0, 100, open)),
+    isOpen: percentOpen => percentOpen === 100,
+    axis: side => side === 'left' || side === 'right' ? 'x' : 'y',
+    translate: (percentOpen, side, axis) => {
+      const amount = isLeadingSide(side) ? percentOpen - 100 : 100 - percentOpen
+      return axis === 'x' ? { x: amount, y: 0 } : { x: 0, y: amount }
+    },
+    shouldTransition: (smooth, temporarySmooth) =>
+      temporarySmooth !== undefined ? temporarySmooth : smooth
+  },
+
+  methods: {
+    toggle: function ({ smooth = true } = {}) {
+      const open = !this.get('isOpen')
+      this.set({ open, temporarySmooth: smooth })
+      return { open }
+    }
+  }
+}
+</script>
+
+<style>
+
+.svelte-drawer {
+  position: fixed;
+  display: inline;
+  z-index: 999;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.svelte-drawer.smooth {
+  transition: transform 300ms;
+}
+
+.axis-x {
+  top: 0;
+  bottom: 0;
+  height: 100%;
+}
+
+.axis-y {
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+.side-top    { top: 0 }
+.side-right  { right: 0 }
+.side-bottom { bottom: 0 }
+.side-left   { left: 0 }
+
+.svelte-drawer-scrim {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 998;
+  background: #000000;
+  opacity: .1;
+  will-change: opacity;
+}
+
+.transparent {
+  opacity: 0;
+}
+
+.svelte-drawer-scrim.smooth {
+  transition: opacity 300ms linear;
+}
+
+</style>

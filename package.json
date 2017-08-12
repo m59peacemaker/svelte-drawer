@@ -1,0 +1,32 @@
+{
+  "name": "svelte-drawer",
+  "version": "0.0.0",
+  "description": "A drawer (a.k.a side menu) component.",
+  "main": "build/Drawer.cjs.js",
+  "module": "build/Drawer.mjs",
+  "svelte": "src/Drawer.html",
+  "svelte.root": "src",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "keywords": [
+    "svelte",
+    "drawer",
+    "side",
+    "menu",
+    "side-menu",
+    "navigation",
+    "component",
+    "material",
+    "browser"
+  ],
+  "author": "Johnny Hauser <johnnyhauser@gmail.com>",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "rollup": "^0.45.2",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-svelte": "^3.0.1",
+    "sveltify": "^1.1.0"
+  }
+}
