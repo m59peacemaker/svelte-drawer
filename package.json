@@ -7,7 +7,10 @@
   "svelte": "src/Drawer.html",
   "svelte.root": "src",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "watch": "onchange -i 'src/**/*' -- npm run build",
+    "server": "live-server --no-browser docs",
+    "dev": "sh -c 'npm run watch & npm run server & wait'"
   },
   "keywords": [
     "svelte",
