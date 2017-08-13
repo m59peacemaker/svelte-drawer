@@ -220,13 +220,13 @@ return {
 }());
 
 function encapsulateStyles ( node ) {
-	setAttribute( node, 'svelte-510233630', '' );
+	setAttribute( node, 'svelte-2180682697', '' );
 }
 
 function add_css () {
 	var style = createElement( 'style' );
-	style.id = 'svelte-510233630-style';
-	style.textContent = "[svelte-510233630].svelte-drawer,[svelte-510233630] .svelte-drawer{position:fixed;display:inline;z-index:999;transform:translate3d(0, 0, 0);will-change:transform}[svelte-510233630].svelte-drawer.smooth,[svelte-510233630] .svelte-drawer.smooth{transition:transform 300ms}[svelte-510233630].axis-x,[svelte-510233630] .axis-x{top:0;bottom:0;height:100%}[svelte-510233630].axis-y,[svelte-510233630] .axis-y{left:0;right:0;width:100%}[svelte-510233630].side-top,[svelte-510233630] .side-top{top:0 }[svelte-510233630].side-right,[svelte-510233630] .side-right{right:0 }[svelte-510233630].side-bottom,[svelte-510233630] .side-bottom{bottom:0 }[svelte-510233630].side-left,[svelte-510233630] .side-left{left:0 }[svelte-510233630].svelte-drawer-scrim,[svelte-510233630] .svelte-drawer-scrim{position:fixed;top:0;right:0;bottom:0;left:0;z-index:998;background:#000000;opacity:.1;will-change:opacity}[svelte-510233630].transparent,[svelte-510233630] .transparent{opacity:0}[svelte-510233630].svelte-drawer-scrim.smooth,[svelte-510233630] .svelte-drawer-scrim.smooth{transition:opacity 300ms linear}";
+	style.id = 'svelte-2180682697-style';
+	style.textContent = "[svelte-2180682697].svelte-drawer,[svelte-2180682697] .svelte-drawer{position:fixed;display:inline;z-index:999;transform:translate3d(0, 0, 0);will-change:transform}[svelte-2180682697].svelte-drawer.smooth,[svelte-2180682697] .svelte-drawer.smooth{transition:transform 300ms}[svelte-2180682697].axis-x,[svelte-2180682697] .axis-x{top:0;bottom:0;height:100%}[svelte-2180682697].axis-y,[svelte-2180682697] .axis-y{left:0;right:0;width:100%}[svelte-2180682697].side-top,[svelte-2180682697] .side-top{top:0 }[svelte-2180682697].side-right,[svelte-2180682697] .side-right{right:0 }[svelte-2180682697].side-bottom,[svelte-2180682697] .side-bottom{bottom:0 }[svelte-2180682697].side-left,[svelte-2180682697] .side-left{left:0 }[svelte-2180682697].svelte-drawer-scrim,[svelte-2180682697] .svelte-drawer-scrim{position:fixed;top:0;right:0;bottom:0;left:0;z-index:998;background:#000000;opacity:.1}";
 	appendNode( style, document.head );
 }
 
@@ -238,7 +238,7 @@ function create_main_fragment ( state, component ) {
 		component.set('temporarySmooth', ( 'undefined' in state ? state.undefined : undefined ));
 	}
 
-	var if_block = (state.scrim) && create_if_block( state, component );
+	var if_block = (state.scrim && state.isOpen) && create_if_block( state, component );
 
 	return {
 		create: function () {
@@ -273,10 +273,8 @@ function create_main_fragment ( state, component ) {
 				div.style.cssText = div_style_value;
 			}
 
-			if ( state.scrim ) {
-				if ( if_block ) {
-					if_block.update( changed, state );
-				} else {
+			if ( state.scrim && state.isOpen ) {
+				if ( !if_block ) {
 					if_block = create_if_block( state, component );
 					if_block.create();
 					if_block.mount( if_block_anchor.parentNode, if_block_anchor );
@@ -304,7 +302,7 @@ function create_main_fragment ( state, component ) {
 }
 
 function create_if_block ( state, component ) {
-	var div, div_class_value;
+	var div;
 
 	function click_handler ( event ) {
 		component.set({ open: false });
@@ -318,18 +316,12 @@ function create_if_block ( state, component ) {
 
 		hydrate: function ( nodes ) {
 			encapsulateStyles( div );
-			div.className = div_class_value = "\n      svelte-drawer-scrim " + ( !state.isOpen ? 'transparent' : '' ) + "\n      " + ( state.shouldTransition ? 'smooth' : '' ) + "\n    ";
+			div.className = "svelte-drawer-scrim";
 			addListener( div, 'click', click_handler );
 		},
 
 		mount: function ( target, anchor ) {
 			insertNode( div, target, anchor );
-		},
-
-		update: function ( changed, state ) {
-			if ( div_class_value !== ( div_class_value = "\n      svelte-drawer-scrim " + ( !state.isOpen ? 'transparent' : '' ) + "\n      " + ( state.shouldTransition ? 'smooth' : '' ) + "\n    " ) ) {
-				div.className = div_class_value;
-			}
 		},
 
 		unmount: function () {
@@ -357,7 +349,7 @@ function Drawer ( options ) {
 	this._root = options._root || this;
 	this._yield = options._yield;
 
-	if ( !document.getElementById( 'svelte-510233630-style' ) ) add_css();
+	if ( !document.getElementById( 'svelte-2180682697-style' ) ) add_css();
 
 	this._fragment = create_main_fragment( this._state, this );
 
