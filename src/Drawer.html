@@ -10,14 +10,8 @@
   on:transitionend="set('temporarySmooth', undefined)"
 >{{ yield }}</div>
 
-{{#if scrim}}
-  <div
-    class="
-      svelte-drawer-scrim {{ !isOpen ? 'transparent' : '' }}
-      {{ shouldTransition ? 'smooth' : '' }}
-    "
-    on:click="set({ open: false })"
-  ></div>
+{{#if scrim && isOpen}}
+  <div class="svelte-drawer-scrim" on:click="set({ open: false })"></div>
 {{/if}}
 
 <script>
@@ -97,15 +91,6 @@ export default {
   z-index: 998;
   background: #000000;
   opacity: .1;
-  will-change: opacity;
-}
-
-.transparent {
-  opacity: 0;
-}
-
-.svelte-drawer-scrim.smooth {
-  transition: opacity 300ms linear;
 }
 
 </style>
