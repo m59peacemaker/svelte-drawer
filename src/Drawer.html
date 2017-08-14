@@ -6,12 +6,19 @@
     {{ isOpen ? 'open' : 'closed' }}
     {{ shouldTransition ? 'smooth' : '' }}
   "
-  style="transform: translate3d({{ translate.x }}%, {{ translate.y }}%, 0);"
+  style="
+    transform: translate3d({{ translate.x }}%, {{ translate.y }}%, 0);
+    z-index: {{ zIndexBase + 1 }};
+  "
   on:transitionend="set('temporarySmooth', undefined)"
 >{{ yield }}</div>
 
 {{#if scrim && isOpen}}
-  <div class="svelte-drawer-scrim" on:click="set({ open: false })"></div>
+  <div
+    class="svelte-drawer-scrim"
+    style="z-index: {{ zIndexBase }};"
+    on:click="set({ open: false })"
+  ></div>
 {{/if}}
 
 <script>
@@ -24,7 +31,8 @@ export default {
       side: 'left',
       open: false, // true, false, 0 - 100 (percent)
       smooth: true,
-      scrim: true
+      scrim: true,
+      zIndexBase: 1
       //push: false // false, element/ref // TODO: push other content
     }
   },
@@ -56,7 +64,6 @@ export default {
 .svelte-drawer {
   position: fixed;
   display: inline;
-  z-index: 999;
   transform: translate3d(0, 0, 0);
   will-change: transform;
 }
@@ -88,7 +95,6 @@ export default {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 998;
   background: #000000;
   opacity: .1;
 }

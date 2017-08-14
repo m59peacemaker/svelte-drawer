@@ -22,7 +22,8 @@ const drawer = new Drawer({
       // false => drawer is closed
       // 80 => drawer is 80% open
     smooth: true, // use transitions
-    scrim: true // true, false - darken the rest of the page when drawer is open
+    scrim: true, // true, false - darken the rest of the page when drawer is open
+    zIndexBase: 1 // adjust the relative z-index of the drawer
   }
 })
 ```
