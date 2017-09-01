@@ -7,28 +7,34 @@ const Plugins = () => [
     module: true, browser: true, jsnext: true, main: true, extensions: [ '.js', '.json' ]
   }),
   commonjs(),
-  svelte()
+  svelte({ cascade: false })
 ]
 
 export default [
   {
-    entry: 'src/Drawer.html',
-    dest: 'build/Drawer.mjs',
-    format: 'es',
+    input: 'src/Drawer.html',
+    output: {
+      file: 'build/Drawer.js',
+      format: 'es'
+    },
     plugins: Plugins()
   },
 
   {
-    entry: 'src/Drawer.html',
-    dest: 'build/Drawer.cjs.js',
-    format: 'cjs',
+    input: 'src/Drawer.html',
+    output: {
+      file: 'build/Drawer.cjs.js',
+      format: 'cjs'
+    },
     plugins: Plugins()
   },
 
   {
-    entry: 'src/docs.js',
-    dest: 'docs/docs.js',
-    format: 'iife',
+    input: 'src/docs.js',
+    output: {
+      file: 'docs/docs.js',
+      format: 'iife'
+    },
     plugins: Plugins()
   }
 ]

@@ -2,16 +2,6 @@ import Drawer from './Drawer.html'
 
 // TODO: might as well use svelte in the docs
 
-const componentize = node => ({
-  mount: function (target, anchor) {
-    target.insertBefore(node, anchor)
-  },
-  unmount: function (node) {
-    node.parent.removeChild(node)
-  },
-  destroy: () => {}
-})
-
 const mainContent = document.createElement('article')
 mainContent.textContent = 'Main content.'
 
@@ -27,9 +17,11 @@ document.body.appendChild(mainContent)
 
 const drawer = new Drawer({
   target: document.body,
-  _yield: componentize(div),
   data: {
     side: 'left'
+  },
+  slots: {
+    default: div
   }
 })
 

@@ -11,9 +11,11 @@
     z-index: {{ zIndexBase + 1 }};
   "
   on:transitionend="set('temporarySmooth', undefined)"
->{{ yield }}</div>
+><slot></slot></div>
 
 {{#if scrim && isOpen}}
+  <!-- TODO: make/use svelte-scrim and slot to provide a different scrim -->
+  <!-- <slot name="scrim"><Scrim/></slot> -->
   <div
     class="svelte-drawer-scrim"
     style="z-index: {{ zIndexBase }};"
@@ -33,7 +35,7 @@ export default {
       smooth: true,
       scrim: true,
       zIndexBase: 1
-      //push: false // false, element/ref // TODO: push other content
+      //push: false // false, element/ref // TODO: push other content over when opening
     }
   },
 
