@@ -27,6 +27,12 @@ function detachNode(node) {
 	node.parentNode.removeChild(node);
 }
 
+function reinsertBetween(before, after, target) {
+	while (before.nextSibling && before.nextSibling !== after) {
+		target.appendChild(before.parentNode.removeChild(before.nextSibling));
+	}
+}
+
 function createElement(name) {
 	return document.createElement(name);
 }
@@ -52,39 +58,35 @@ function setAttribute(node, attribute, value) {
 }
 
 function destroy(detach) {
-	this.destroy = this.set = noop;
+	this.destroy = this.set = this.get = noop;
 	this.fire('destroy');
 
 	if (detach !== false) this._fragment.unmount();
 	this._fragment.destroy();
-	this._fragment = null;
-
-	this._state = {};
+	this._fragment = this._state = null;
 }
 
 function differs(a, b) {
 	return a !== b || ((a && typeof a === 'object') || typeof a === 'function');
 }
 
-function dispatchObservers(component, group, newState, oldState) {
+function dispatchObservers(component, group, changed, newState, oldState) {
 	for (var key in group) {
-		if (!(key in newState)) continue;
+		if (!changed[key]) continue;
 
 		var newValue = newState[key];
 		var oldValue = oldState[key];
 
-		if (differs(newValue, oldValue)) {
-			var callbacks = group[key];
-			if (!callbacks) continue;
+		var callbacks = group[key];
+		if (!callbacks) continue;
 
-			for (var i = 0; i < callbacks.length; i += 1) {
-				var callback = callbacks[i];
-				if (callback.__calling) continue;
+		for (var i = 0; i < callbacks.length; i += 1) {
+			var callback = callbacks[i];
+			if (callback.__calling) continue;
 
-				callback.__calling = true;
-				callback.call(component, newValue, oldValue);
-				callback.__calling = false;
-			}
+			callback.__calling = true;
+			callback.call(component, newValue, oldValue);
+			callback.__calling = false;
 		}
 	}
 }
@@ -148,6 +150,24 @@ function set(newState) {
 	this._root._lock = false;
 }
 
+function _set(newState) {
+	var oldState = this._state,
+		changed = {},
+		dirty = false;
+
+	for (var key in newState) {
+		if (differs(newState[key], oldState[key])) changed[key] = dirty = true;
+	}
+	if (!dirty) return;
+
+	this._state = assign({}, oldState, newState);
+	this._recompute(changed, this._state, oldState, false);
+	if (this._bind) this._bind(changed, this._state);
+	dispatchObservers(this, this._observers.pre, changed, this._state, oldState);
+	this._fragment.update(changed, this._state);
+	dispatchObservers(this, this._observers.post, changed, this._state, oldState);
+}
+
 function callAll(fns) {
 	while (fns && fns.length) fns.pop()();
 }
@@ -159,30 +179,10 @@ var proto = {
 	observe: observe,
 	on: on,
 	set: set,
-	teardown: destroy
+	teardown: destroy,
+	_recompute: noop,
+	_set: _set
 };
-
-function recompute ( state, newState, oldState, isInitial ) {
-	if ( isInitial || ( 'open' in newState && differs( state.open, oldState.open ) ) ) {
-		state.percentOpen = newState.percentOpen = template.computed.percentOpen( state.open );
-	}
-
-	if ( isInitial || ( 'percentOpen' in newState && differs( state.percentOpen, oldState.percentOpen ) ) ) {
-		state.isOpen = newState.isOpen = template.computed.isOpen( state.percentOpen );
-	}
-
-	if ( isInitial || ( 'side' in newState && differs( state.side, oldState.side ) ) ) {
-		state.axis = newState.axis = template.computed.axis( state.side );
-	}
-
-	if ( isInitial || ( 'percentOpen' in newState && differs( state.percentOpen, oldState.percentOpen ) ) || ( 'side' in newState && differs( state.side, oldState.side ) ) || ( 'axis' in newState && differs( state.axis, oldState.axis ) ) ) {
-		state.translate = newState.translate = template.computed.translate( state.percentOpen, state.side, state.axis );
-	}
-
-	if ( isInitial || ( 'smooth' in newState && differs( state.smooth, oldState.smooth ) ) || ( 'temporarySmooth' in newState && differs( state.temporarySmooth, oldState.temporarySmooth ) ) ) {
-		state.shouldTransition = newState.shouldTransition = template.computed.shouldTransition( state.smooth, state.temporarySmooth );
-	}
-}
 
 var template = (function () {
 const clamp = (min, max, n) => Math.max(min, Math.min(max, n));
@@ -194,7 +194,8 @@ return {
       side: 'left',
       open: false, // true, false, 0 - 100 (percent)
       smooth: true,
-      scrim: true
+      scrim: true,
+      zIndexBase: 1
       //push: false // false, element/ref // TODO: push other content
     }
   },
@@ -222,18 +223,18 @@ return {
 }());
 
 function encapsulateStyles ( node ) {
-	setAttribute( node, 'svelte-2180682697', '' );
+	setAttribute( node, 'svelte-3030053020', '' );
 }
 
 function add_css () {
 	var style = createElement( 'style' );
-	style.id = 'svelte-2180682697-style';
-	style.textContent = "[svelte-2180682697].svelte-drawer,[svelte-2180682697] .svelte-drawer{position:fixed;display:inline;z-index:999;transform:translate3d(0, 0, 0);will-change:transform}[svelte-2180682697].svelte-drawer.smooth,[svelte-2180682697] .svelte-drawer.smooth{transition:transform 300ms}[svelte-2180682697].axis-x,[svelte-2180682697] .axis-x{top:0;bottom:0;height:100%}[svelte-2180682697].axis-y,[svelte-2180682697] .axis-y{left:0;right:0;width:100%}[svelte-2180682697].side-top,[svelte-2180682697] .side-top{top:0 }[svelte-2180682697].side-right,[svelte-2180682697] .side-right{right:0 }[svelte-2180682697].side-bottom,[svelte-2180682697] .side-bottom{bottom:0 }[svelte-2180682697].side-left,[svelte-2180682697] .side-left{left:0 }[svelte-2180682697].svelte-drawer-scrim,[svelte-2180682697] .svelte-drawer-scrim{position:fixed;top:0;right:0;bottom:0;left:0;z-index:998;background:#000000;opacity:.1}";
+	style.id = 'svelte-3030053020-style';
+	style.textContent = "[svelte-3030053020].svelte-drawer,[svelte-3030053020] .svelte-drawer{position:fixed;display:inline;transform:translate3d(0, 0, 0);will-change:transform}[svelte-3030053020].svelte-drawer.smooth,[svelte-3030053020] .svelte-drawer.smooth{transition:transform 300ms}[svelte-3030053020].axis-x,[svelte-3030053020] .axis-x{top:0;bottom:0;height:100%}[svelte-3030053020].axis-y,[svelte-3030053020] .axis-y{left:0;right:0;width:100%}[svelte-3030053020].side-top,[svelte-3030053020] .side-top{top:0 }[svelte-3030053020].side-right,[svelte-3030053020] .side-right{right:0 }[svelte-3030053020].side-bottom,[svelte-3030053020] .side-bottom{bottom:0 }[svelte-3030053020].side-left,[svelte-3030053020] .side-left{left:0 }[svelte-3030053020].svelte-drawer-scrim,[svelte-3030053020] .svelte-drawer-scrim{position:fixed;top:0;right:0;bottom:0;left:0;background:#000000;opacity:0.3}";
 	appendNode( style, document.head );
 }
 
 function create_main_fragment ( state, component ) {
-	var div, div_class_value, div_style_value, text, if_block_anchor;
+	var div, div_class_value, div_style_value, slot_content_default = component._slotted.default, slot_content_default_before, slot_content_default_after, text, if_block_anchor;
 
 	function transitionend_handler ( event ) {
 		var state = component.get();
@@ -254,29 +255,37 @@ function create_main_fragment ( state, component ) {
 		hydrate: function ( nodes ) {
 			encapsulateStyles( div );
 			div.className = div_class_value = "\n    svelte-drawer\n    side-" + ( state.side ) + "\n    axis-" + ( state.axis ) + "\n    " + ( state.isOpen ? 'open' : 'closed' ) + "\n    " + ( state.shouldTransition ? 'smooth' : '' ) + "\n  ";
-			div.style.cssText = div_style_value = "transform: translate3d(" + ( state.translate.x ) + "%, " + ( state.translate.y ) + "%, 0);";
+			div.style.cssText = div_style_value = "\n    transform: translate3d(" + ( state.translate.x ) + "%, " + ( state.translate.y ) + "%, 0);\n    z-index: " + ( state.zIndexBase + 1 ) + ";\n  ";
 			addListener( div, 'transitionend', transitionend_handler );
 		},
 
 		mount: function ( target, anchor ) {
 			insertNode( div, target, anchor );
-			if ( component._yield ) component._yield.mount( div, null );
+
+			if (slot_content_default) {
+				appendNode(slot_content_default_before || (slot_content_default_before = createComment()), div);
+				appendNode(slot_content_default, div);
+				appendNode(slot_content_default_after || (slot_content_default_after = createComment()), div);
+			}
+
 			insertNode( text, target, anchor );
 			if ( if_block ) if_block.mount( target, anchor );
 			insertNode( if_block_anchor, target, anchor );
 		},
 
 		update: function ( changed, state ) {
-			if ( div_class_value !== ( div_class_value = "\n    svelte-drawer\n    side-" + ( state.side ) + "\n    axis-" + ( state.axis ) + "\n    " + ( state.isOpen ? 'open' : 'closed' ) + "\n    " + ( state.shouldTransition ? 'smooth' : '' ) + "\n  " ) ) {
+			if ( ( changed.side || changed.axis || changed.isOpen || changed.shouldTransition ) && div_class_value !== ( div_class_value = "\n    svelte-drawer\n    side-" + ( state.side ) + "\n    axis-" + ( state.axis ) + "\n    " + ( state.isOpen ? 'open' : 'closed' ) + "\n    " + ( state.shouldTransition ? 'smooth' : '' ) + "\n  " ) ) {
 				div.className = div_class_value;
 			}
 
-			if ( div_style_value !== ( div_style_value = "transform: translate3d(" + ( state.translate.x ) + "%, " + ( state.translate.y ) + "%, 0);" ) ) {
+			if ( ( changed.translate || changed.zIndexBase ) && div_style_value !== ( div_style_value = "\n    transform: translate3d(" + ( state.translate.x ) + "%, " + ( state.translate.y ) + "%, 0);\n    z-index: " + ( state.zIndexBase + 1 ) + ";\n  " ) ) {
 				div.style.cssText = div_style_value;
 			}
 
 			if ( state.scrim && state.isOpen ) {
-				if ( !if_block ) {
+				if ( if_block ) {
+					if_block.update( changed, state );
+				} else {
 					if_block = create_if_block( state, component );
 					if_block.create();
 					if_block.mount( if_block_anchor.parentNode, if_block_anchor );
@@ -290,7 +299,13 @@ function create_main_fragment ( state, component ) {
 
 		unmount: function () {
 			detachNode( div );
-			if ( component._yield ) component._yield.unmount();
+
+			if (slot_content_default) {
+				reinsertBetween(slot_content_default_before, slot_content_default_after, slot_content_default);
+				detachNode(slot_content_default_before);
+				detachNode(slot_content_default_after);
+			}
+
 			detachNode( text );
 			if ( if_block ) if_block.unmount();
 			detachNode( if_block_anchor );
@@ -304,7 +319,7 @@ function create_main_fragment ( state, component ) {
 }
 
 function create_if_block ( state, component ) {
-	var div;
+	var div, div_style_value;
 
 	function click_handler ( event ) {
 		component.set({ open: false });
@@ -319,11 +334,18 @@ function create_if_block ( state, component ) {
 		hydrate: function ( nodes ) {
 			encapsulateStyles( div );
 			div.className = "svelte-drawer-scrim";
+			div.style.cssText = div_style_value = "z-index: " + ( state.zIndexBase ) + ";";
 			addListener( div, 'click', click_handler );
 		},
 
 		mount: function ( target, anchor ) {
 			insertNode( div, target, anchor );
+		},
+
+		update: function ( changed, state ) {
+			if ( ( changed.zIndexBase ) && div_style_value !== ( div_style_value = "z-index: " + ( state.zIndexBase ) + ";" ) ) {
+				div.style.cssText = div_style_value;
+			}
 		},
 
 		unmount: function () {
@@ -337,9 +359,9 @@ function create_if_block ( state, component ) {
 }
 
 function Drawer ( options ) {
-	options = options || {};
+	this.options = options;
 	this._state = assign( template.data(), options.data );
-	recompute( this._state, this._state, {}, true );
+	this._recompute( {}, this._state, {}, true );
 
 	this._observers = {
 		pre: Object.create( null ),
@@ -350,26 +372,43 @@ function Drawer ( options ) {
 
 	this._root = options._root || this;
 	this._yield = options._yield;
+	this._bind = options._bind;
+	this._slotted = options.slots || {};
 
-	if ( !document.getElementById( 'svelte-2180682697-style' ) ) add_css();
+	if ( !document.getElementById( 'svelte-3030053020-style' ) ) add_css();
+
+	this.slots = {};
 
 	this._fragment = create_main_fragment( this._state, this );
 
 	if ( options.target ) {
 		this._fragment.create();
-		this._fragment.mount( options.target, null );
+		this._fragment.mount( options.target, options.anchor || null );
 	}
 }
 
 assign( Drawer.prototype, template.methods, proto );
 
-Drawer.prototype._set = function _set ( newState ) {
-	var oldState = this._state;
-	this._state = assign( {}, oldState, newState );
-	recompute( this._state, newState, oldState, false );
-	dispatchObservers( this, this._observers.pre, newState, oldState );
-	this._fragment.update( newState, this._state );
-	dispatchObservers( this, this._observers.post, newState, oldState );
+Drawer.prototype._recompute = function _recompute ( changed, state, oldState, isInitial ) {
+	if ( isInitial || changed.open ) {
+		if ( differs( ( state.percentOpen = template.computed.percentOpen( state.open ) ), oldState.percentOpen ) ) changed.percentOpen = true;
+	}
+
+	if ( isInitial || changed.percentOpen ) {
+		if ( differs( ( state.isOpen = template.computed.isOpen( state.percentOpen ) ), oldState.isOpen ) ) changed.isOpen = true;
+	}
+
+	if ( isInitial || changed.side ) {
+		if ( differs( ( state.axis = template.computed.axis( state.side ) ), oldState.axis ) ) changed.axis = true;
+	}
+
+	if ( isInitial || changed.percentOpen || changed.side || changed.axis ) {
+		if ( differs( ( state.translate = template.computed.translate( state.percentOpen, state.side, state.axis ) ), oldState.translate ) ) changed.translate = true;
+	}
+
+	if ( isInitial || changed.smooth || changed.temporarySmooth ) {
+		if ( differs( ( state.shouldTransition = template.computed.shouldTransition( state.smooth, state.temporarySmooth ) ), oldState.shouldTransition ) ) changed.shouldTransition = true;
+	}
 };
 
 module.exports = Drawer;

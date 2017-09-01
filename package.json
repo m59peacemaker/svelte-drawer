@@ -1,6 +1,6 @@
 {
   "name": "svelte-drawer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A drawer (a.k.a side menu) component.",
   "main": "build/Drawer.cjs.js",
   "module": "build/Drawer.mjs",
@@ -9,8 +9,9 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "onchange -i 'src/**/*' -- npm run build",
-    "server": "live-server --no-browser docs",
-    "dev": "sh -c 'npm run watch & npm run server & wait'"
+    "dev-server": "live-server --no-browser docs",
+    "dev": "sh -c 'npm run watch & npm run dev-server & wait'",
+    "prepublish": "npm run build"
   },
   "keywords": [
     "svelte",
@@ -29,7 +30,6 @@
     "rollup": "^0.45.2",
     "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-plugin-svelte": "^3.0.1",
-    "sveltify": "^1.1.0"
+    "rollup-plugin-svelte": "^3.0.1"
   }
 }
