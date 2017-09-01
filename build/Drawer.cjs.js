@@ -196,7 +196,7 @@ return {
       smooth: true,
       scrim: true,
       zIndexBase: 1
-      //push: false // false, element/ref // TODO: push other content
+      //push: false // false, element/ref // TODO: push other content over when opening
     }
   },
 
@@ -223,13 +223,13 @@ return {
 }());
 
 function encapsulateStyles ( node ) {
-	setAttribute( node, 'svelte-3030053020', '' );
+	setAttribute( node, 'svelte-3722708153', '' );
 }
 
 function add_css () {
 	var style = createElement( 'style' );
-	style.id = 'svelte-3030053020-style';
-	style.textContent = "[svelte-3030053020].svelte-drawer,[svelte-3030053020] .svelte-drawer{position:fixed;display:inline;transform:translate3d(0, 0, 0);will-change:transform}[svelte-3030053020].svelte-drawer.smooth,[svelte-3030053020] .svelte-drawer.smooth{transition:transform 300ms}[svelte-3030053020].axis-x,[svelte-3030053020] .axis-x{top:0;bottom:0;height:100%}[svelte-3030053020].axis-y,[svelte-3030053020] .axis-y{left:0;right:0;width:100%}[svelte-3030053020].side-top,[svelte-3030053020] .side-top{top:0 }[svelte-3030053020].side-right,[svelte-3030053020] .side-right{right:0 }[svelte-3030053020].side-bottom,[svelte-3030053020] .side-bottom{bottom:0 }[svelte-3030053020].side-left,[svelte-3030053020] .side-left{left:0 }[svelte-3030053020].svelte-drawer-scrim,[svelte-3030053020] .svelte-drawer-scrim{position:fixed;top:0;right:0;bottom:0;left:0;background:#000000;opacity:0.3}";
+	style.id = 'svelte-3722708153-style';
+	style.textContent = ".svelte-drawer[svelte-3722708153]{position:fixed;display:inline;transform:translate3d(0, 0, 0);will-change:transform}.svelte-drawer.smooth[svelte-3722708153]{transition:transform 300ms}.axis-x[svelte-3722708153]{top:0;bottom:0;height:100%}.axis-y[svelte-3722708153]{left:0;right:0;width:100%}.side-top[svelte-3722708153]{top:0 }.side-right[svelte-3722708153]{right:0 }.side-bottom[svelte-3722708153]{bottom:0 }.side-left[svelte-3722708153]{left:0 }.svelte-drawer-scrim[svelte-3722708153]{position:fixed;top:0;right:0;bottom:0;left:0;background:#000000;opacity:0.3}";
 	appendNode( style, document.head );
 }
 
@@ -375,7 +375,7 @@ function Drawer ( options ) {
 	this._bind = options._bind;
 	this._slotted = options.slots || {};
 
-	if ( !document.getElementById( 'svelte-3030053020-style' ) ) add_css();
+	if ( !document.getElementById( 'svelte-3722708153-style' ) ) add_css();
 
 	this.slots = {};
 

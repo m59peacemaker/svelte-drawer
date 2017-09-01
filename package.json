@@ -1,6 +1,6 @@
 {
   "name": "svelte-drawer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A drawer (a.k.a side menu) component.",
   "main": "build/Drawer.cjs.js",
   "module": "build/Drawer.mjs",
