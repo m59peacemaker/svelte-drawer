@@ -1,3 +1,6 @@
+(function () {
+'use strict';
+
 function isDate(obj) {
     return Object.prototype.toString.call(obj) === '[object Date]';
 }
@@ -734,7 +737,7 @@ var proto$1 = {
 	_set: _set$1
 };
 
-var template = (function () {
+var template$1$1 = (function () {
 const isLeadingSide = side => side === 'left' || side === 'top';
 
 const DEFAULTS = {
@@ -795,18 +798,18 @@ return {
 }
 }());
 
-function encapsulateStyles ( node ) {
+function encapsulateStyles$1$1 ( node ) {
 	setAttribute$1( node, 'svelte-1589842680', '' );
 }
 
-function add_css () {
+function add_css$1$1 () {
 	var style = createElement$1( 'style' );
 	style.id = 'svelte-1589842680-style';
 	style.textContent = ".svelte-drawer[svelte-1589842680]{position:fixed;display:inline;transform:translate3d(0, 0, 0)}.axis-x[svelte-1589842680]{top:0;bottom:0;height:100%}.axis-y[svelte-1589842680]{left:0;right:0;width:100%}.side-top[svelte-1589842680]{top:0 }.side-right[svelte-1589842680]{right:0 }.side-bottom[svelte-1589842680]{bottom:0 }.side-left[svelte-1589842680]{left:0 }";
 	appendNode$1( style, document.head );
 }
 
-function create_main_fragment ( state, component ) {
+function create_main_fragment$1$1 ( state, component ) {
 	var div, div_class_value, div_style_value, slot_content_default = component._slotted.default, slot_content_default_before, slot_content_default_after, text_1, if_block_anchor;
 
 	var if_block = (state.scrim && !state.closed && !state.closing) && create_if_block( state, component );
@@ -821,7 +824,7 @@ function create_main_fragment ( state, component ) {
 		},
 
 		hydrate: function ( nodes ) {
-			encapsulateStyles( div );
+			encapsulateStyles$1$1( div );
 			div.className = div_class_value = "\n    svelte-drawer\n    side-" + ( state.side ) + "\n    axis-" + ( state.axis ) + "\n  ";
 			setAttribute$1( div, 'data-open', state.open );
 			setAttribute$1( div, 'data-opening', state.opening );
@@ -969,7 +972,7 @@ function create_if_block ( state, component ) {
 
 function Drawer ( options ) {
 	this.options = options;
-	this._state = assign$1( template.data(), options.data );
+	this._state = assign$1( template$1$1.data(), options.data );
 	this._recompute( {}, this._state, {}, true );
 
 	this._observers = {
@@ -984,7 +987,7 @@ function Drawer ( options ) {
 	this._bind = options._bind;
 	this._slotted = options.slots || {};
 
-	if ( !document.getElementById( 'svelte-1589842680-style' ) ) add_css();
+	if ( !document.getElementById( 'svelte-1589842680-style' ) ) add_css$1$1();
 
 	if ( !options._root ) {
 		this._oncreate = [];
@@ -994,7 +997,7 @@ function Drawer ( options ) {
 
 	this.slots = {};
 
-	this._fragment = create_main_fragment( this._state, this );
+	this._fragment = create_main_fragment$1$1( this._state, this );
 
 	if ( options.target ) {
 		this._fragment.create();
@@ -1010,23 +1013,590 @@ function Drawer ( options ) {
 	}
 }
 
-assign$1( Drawer.prototype, template.methods, proto$1 );
+assign$1( Drawer.prototype, template$1$1.methods, proto$1 );
 
 Drawer.prototype._recompute = function _recompute ( changed, state, oldState, isInitial ) {
 	if ( isInitial || changed.percentOpen ) {
-		if ( differs$1( ( state.open = template.computed.open( state.percentOpen ) ), oldState.open ) ) changed.open = true;
-		if ( differs$1( ( state.closed = template.computed.closed( state.percentOpen ) ), oldState.closed ) ) changed.closed = true;
+		if ( differs$1( ( state.open = template$1$1.computed.open( state.percentOpen ) ), oldState.open ) ) changed.open = true;
+		if ( differs$1( ( state.closed = template$1$1.computed.closed( state.percentOpen ) ), oldState.closed ) ) changed.closed = true;
 	}
 
 	if ( isInitial || changed.side ) {
-		if ( differs$1( ( state.axis = template.computed.axis( state.side ) ), oldState.axis ) ) changed.axis = true;
+		if ( differs$1( ( state.axis = template$1$1.computed.axis( state.side ) ), oldState.axis ) ) changed.axis = true;
 	}
 
 	if ( isInitial || changed.percentOpen || changed.side || changed.axis ) {
-		if ( differs$1( ( state.translate = template.computed.translate( state.percentOpen, state.side, state.axis ) ), oldState.translate ) ) changed.translate = true;
+		if ( differs$1( ( state.translate = template$1$1.computed.translate( state.percentOpen, state.side, state.axis ) ), oldState.translate ) ) changed.translate = true;
 	}
 };
 
-template.setup( Drawer );
+template$1$1.setup( Drawer );
 
-export default Drawer;
+const OppositeCalculator = (...opposites) => {
+  const map = opposites.reduce((map, [ a, b ]) => {
+    map[a] = b;
+    map[b] = a;
+    return map
+  }, {});
+  return value => map[value]
+};
+
+function noop$1$1() {}
+
+function assign$1$1(target) {
+	var k,
+		source,
+		i = 1,
+		len = arguments.length;
+	for (; i < len; i++) {
+		source = arguments[i];
+		for (k in source) target[k] = source[k];
+	}
+
+	return target;
+}
+
+function appendNode$1$1(node, target) {
+	target.appendChild(node);
+}
+
+function insertNode$1$1(node, target, anchor) {
+	target.insertBefore(node, anchor);
+}
+
+function detachNode$1$1(node) {
+	node.parentNode.removeChild(node);
+}
+
+function createFragment() {
+	return document.createDocumentFragment();
+}
+
+function createElement$1$1(name) {
+	return document.createElement(name);
+}
+
+function createText$1(data) {
+	return document.createTextNode(data);
+}
+
+function addListener$1(node, event, handler) {
+	node.addEventListener(event, handler, false);
+}
+
+function removeListener$1(node, event, handler) {
+	node.removeEventListener(event, handler, false);
+}
+
+function setAttribute$1$1(node, attribute, value) {
+	node.setAttribute(attribute, value);
+}
+
+function destroy$1$1(detach) {
+	this.destroy = this.set = this.get = noop$1$1;
+	this.fire('destroy');
+
+	if (detach !== false) this._fragment.unmount();
+	this._fragment.destroy();
+	this._fragment = this._state = null;
+}
+
+function differs$1$1(a, b) {
+	return a !== b || ((a && typeof a === 'object') || typeof a === 'function');
+}
+
+function dispatchObservers$1$1(component, group, changed, newState, oldState) {
+	for (var key in group) {
+		if (!changed[key]) continue;
+
+		var newValue = newState[key];
+		var oldValue = oldState[key];
+
+		var callbacks = group[key];
+		if (!callbacks) continue;
+
+		for (var i = 0; i < callbacks.length; i += 1) {
+			var callback = callbacks[i];
+			if (callback.__calling) continue;
+
+			callback.__calling = true;
+			callback.call(component, newValue, oldValue);
+			callback.__calling = false;
+		}
+	}
+}
+
+function get$1$1(key) {
+	return key ? this._state[key] : this._state;
+}
+
+function fire$1$1(eventName, data) {
+	var handlers =
+		eventName in this._handlers && this._handlers[eventName].slice();
+	if (!handlers) return;
+
+	for (var i = 0; i < handlers.length; i += 1) {
+		handlers[i].call(this, data);
+	}
+}
+
+function observe$1$1(key, callback, options) {
+	var group = options && options.defer
+		? this._observers.post
+		: this._observers.pre;
+
+	(group[key] || (group[key] = [])).push(callback);
+
+	if (!options || options.init !== false) {
+		callback.__calling = true;
+		callback.call(this, this._state[key]);
+		callback.__calling = false;
+	}
+
+	return {
+		cancel: function() {
+			var index = group[key].indexOf(callback);
+			if (~index) group[key].splice(index, 1);
+		}
+	};
+}
+
+function on$1$1(eventName, handler) {
+	if (eventName === 'teardown') return this.on('destroy', handler);
+
+	var handlers = this._handlers[eventName] || (this._handlers[eventName] = []);
+	handlers.push(handler);
+
+	return {
+		cancel: function() {
+			var index = handlers.indexOf(handler);
+			if (~index) handlers.splice(index, 1);
+		}
+	};
+}
+
+function set$1$1(newState) {
+	this._set(assign$1$1({}, newState));
+	if (this._root._lock) return;
+	this._root._lock = true;
+	callAll$1$1(this._root._beforecreate);
+	callAll$1$1(this._root._oncreate);
+	callAll$1$1(this._root._aftercreate);
+	this._root._lock = false;
+}
+
+function _set$1$1(newState) {
+	var oldState = this._state,
+		changed = {},
+		dirty = false;
+
+	for (var key in newState) {
+		if (differs$1$1(newState[key], oldState[key])) changed[key] = dirty = true;
+	}
+	if (!dirty) return;
+
+	this._state = assign$1$1({}, oldState, newState);
+	this._recompute(changed, this._state, oldState, false);
+	if (this._bind) this._bind(changed, this._state);
+	dispatchObservers$1$1(this, this._observers.pre, changed, this._state, oldState);
+	this._fragment.update(changed, this._state);
+	dispatchObservers$1$1(this, this._observers.post, changed, this._state, oldState);
+}
+
+function callAll$1$1(fns) {
+	while (fns && fns.length) fns.pop()();
+}
+
+var proto$1$1 = {
+	destroy: destroy$1$1,
+	get: get$1$1,
+	fire: fire$1$1,
+	observe: observe$1$1,
+	on: on$1$1,
+	set: set$1$1,
+	teardown: destroy$1$1,
+	_recompute: noop$1$1,
+	_set: _set$1$1
+};
+
+var template = (function () {
+const getOppositeSide = OppositeCalculator([ 'left', 'right' ], [ 'top', 'bottom' ]);
+const sideToArrowMap = { top: 'up', bottom: 'down' };
+
+return {
+  data () {
+    return {
+      drawer: Object.assign({}, Drawer.DEFAULTS)
+    }
+  },
+
+  computed: {
+    arrow: (drawer) => {
+      const side = (drawer.closing || drawer.closed) ? getOppositeSide(drawer.side) : drawer.side;
+      return sideToArrowMap[side] || side
+    }
+  }
+}
+}());
+
+function encapsulateStyles ( node ) {
+	setAttribute$1$1( node, 'svelte-2558650438', '' );
+}
+
+function add_css () {
+	var style = createElement$1$1( 'style' );
+	style.id = 'svelte-2558650438-style';
+	style.textContent = ".drawer-toggle[svelte-2558650438]{position:absolute;transition:none}.axis-x .drawer-toggle{top:50%;transform:translateY(-50%)}.axis-y .drawer-toggle{left:50%;transform:translateX(-50%)}.side-left .drawer-toggle{left:100%}.side-right .drawer-toggle{right:100%}.side-top .drawer-toggle{top:100%}.side-bottom .drawer-toggle{bottom:100%}.drawer-content[svelte-2558650438]{background:white;overflow:auto;padding:20px;box-sizing:border-box}.axis-x .drawer-content{height:100%;width:275px}.axis-y .drawer-content{height:275px;width:100%}";
+	appendNode$1$1( style, document.head );
+}
+
+function create_main_fragment ( state, component ) {
+	var h1, text, text_1, fieldset, legend, text_2, text_3, ul, li, label, input, input_updating = false, text_4, li_1, label_1, input_1, input_1_updating = false, text_6, li_2, label_2, input_2, input_2_updating = false, text_8, li_3, label_3, input_3, input_3_updating = false, text_10, text_13, button, i, i_class_value, text_15, div, h3, text_16, drawer_updating = {};
+
+	function input_change_handler () {
+		input_updating = true;
+		if ( !input.checked ) return;
+		var state = component.get();
+		state.drawer.side = input.__value;
+		component.set({ drawer: state.drawer });
+		input_updating = false;
+	}
+
+	function input_1_change_handler () {
+		input_1_updating = true;
+		if ( !input_1.checked ) return;
+		var state = component.get();
+		state.drawer.side = input_1.__value;
+		component.set({ drawer: state.drawer });
+		input_1_updating = false;
+	}
+
+	function input_2_change_handler () {
+		input_2_updating = true;
+		if ( !input_2.checked ) return;
+		var state = component.get();
+		state.drawer.side = input_2.__value;
+		component.set({ drawer: state.drawer });
+		input_2_updating = false;
+	}
+
+	function input_3_change_handler () {
+		input_3_updating = true;
+		if ( !input_3.checked ) return;
+		var state = component.get();
+		state.drawer.side = input_3.__value;
+		component.set({ drawer: state.drawer });
+		input_3_updating = false;
+	}
+
+	function click_handler ( event ) {
+		component.refs.drawer.toggle();
+	}
+
+	var drawer_initial_data = { side: state.drawer.side };
+	if ( 'open' in state.drawer ) {
+		drawer_initial_data.open = state.drawer.open;
+		drawer_updating.open = true;
+	}
+	if ( 'closing' in state.drawer ) {
+		drawer_initial_data.closing = state.drawer.closing;
+		drawer_updating.closing = true;
+	}
+	if ( 'closed' in state.drawer ) {
+		drawer_initial_data.closed = state.drawer.closed;
+		drawer_updating.closed = true;
+	}
+	var drawer = new Drawer({
+		_root: component._root,
+		slots: { default: createFragment() },
+		data: drawer_initial_data,
+		_bind: function(changed, childState) {
+			var state = component.get(), newState = {};
+			if ( !drawer_updating.open && changed.open ) {
+				state.drawer.open = childState.open;
+				newState.drawer = state.drawer;
+			}
+
+			if ( !drawer_updating.closing && changed.closing ) {
+				state.drawer.closing = childState.closing;
+				newState.drawer = state.drawer;
+			}
+
+			if ( !drawer_updating.closed && changed.closed ) {
+				state.drawer.closed = childState.closed;
+				newState.drawer = state.drawer;
+			}
+			drawer_updating = changed;
+			component._set(newState);
+			drawer_updating = {};
+		}
+	});
+
+	component._root._beforecreate.push(function () {
+		var state = component.get(), childState = drawer.get(), newState = {};
+		if (!childState) return;
+		if ( !drawer_updating.open ) {
+			state.drawer.open = childState.open;
+			newState.drawer = state.drawer;
+		}
+
+		if ( !drawer_updating.closing ) {
+			state.drawer.closing = childState.closing;
+			newState.drawer = state.drawer;
+		}
+
+		if ( !drawer_updating.closed ) {
+			state.drawer.closed = childState.closed;
+			newState.drawer = state.drawer;
+		}
+		drawer_updating = { open: true, closing: true, closed: true };
+		component._set(newState);
+		drawer_updating = {};
+	});
+
+	component.refs.drawer = drawer;
+
+	return {
+		create: function () {
+			h1 = createElement$1$1( 'h1' );
+			text = createText$1( "svelte-drawer" );
+			text_1 = createText$1( "\n\n" );
+			fieldset = createElement$1$1( 'fieldset' );
+			legend = createElement$1$1( 'legend' );
+			text_2 = createText$1( "Side" );
+			text_3 = createText$1( "\n  " );
+			ul = createElement$1$1( 'ul' );
+			li = createElement$1$1( 'li' );
+			label = createElement$1$1( 'label' );
+			input = createElement$1$1( 'input' );
+			text_4 = createText$1( "\n        left" );
+			li_1 = createElement$1$1( 'li' );
+			label_1 = createElement$1$1( 'label' );
+			input_1 = createElement$1$1( 'input' );
+			text_6 = createText$1( "\n        right" );
+			li_2 = createElement$1$1( 'li' );
+			label_2 = createElement$1$1( 'label' );
+			input_2 = createElement$1$1( 'input' );
+			text_8 = createText$1( "\n        top" );
+			li_3 = createElement$1$1( 'li' );
+			label_3 = createElement$1$1( 'label' );
+			input_3 = createElement$1$1( 'input' );
+			text_10 = createText$1( "\n        bottom" );
+			text_13 = createText$1( "\n\n" );
+			button = createElement$1$1( 'button' );
+			i = createElement$1$1( 'i' );
+			text_15 = createText$1( "\n\n  " );
+			div = createElement$1$1( 'div' );
+			h3 = createElement$1$1( 'h3' );
+			text_16 = createText$1( "Drawer Content" );
+			drawer._fragment.create();
+			this.hydrate();
+		},
+
+		hydrate: function ( nodes ) {
+			fieldset.className = "drawer-side";
+			input.type = "radio";
+			input.name = "drawer-side";
+			input.__value = "left";
+			input.value = input.__value;
+			component._bindingGroups[0].push( input );
+			addListener$1( input, 'change', input_change_handler );
+			input_1.type = "radio";
+			input_1.name = "drawer-side";
+			input_1.__value = "right";
+			input_1.value = input_1.__value;
+			component._bindingGroups[0].push( input_1 );
+			addListener$1( input_1, 'change', input_1_change_handler );
+			input_2.type = "radio";
+			input_2.name = "drawer-side";
+			input_2.__value = "top";
+			input_2.value = input_2.__value;
+			component._bindingGroups[0].push( input_2 );
+			addListener$1( input_2, 'change', input_2_change_handler );
+			input_3.type = "radio";
+			input_3.name = "drawer-side";
+			input_3.__value = "bottom";
+			input_3.value = input_3.__value;
+			component._bindingGroups[0].push( input_3 );
+			addListener$1( input_3, 'change', input_3_change_handler );
+			encapsulateStyles( button );
+			button.className = "drawer-toggle btn btn-default";
+			addListener$1( button, 'click', click_handler );
+			encapsulateStyles( i );
+			i.className = i_class_value = "fa fa-chevron-" + ( state.arrow );
+			encapsulateStyles( div );
+			div.className = "drawer-content";
+		},
+
+		mount: function ( target, anchor ) {
+			insertNode$1$1( h1, target, anchor );
+			appendNode$1$1( text, h1 );
+			insertNode$1$1( text_1, target, anchor );
+			insertNode$1$1( fieldset, target, anchor );
+			appendNode$1$1( legend, fieldset );
+			appendNode$1$1( text_2, legend );
+			appendNode$1$1( text_3, fieldset );
+			appendNode$1$1( ul, fieldset );
+			appendNode$1$1( li, ul );
+			appendNode$1$1( label, li );
+			appendNode$1$1( input, label );
+
+			input.checked = input.__value === state.drawer.side;
+
+			appendNode$1$1( text_4, label );
+			appendNode$1$1( li_1, ul );
+			appendNode$1$1( label_1, li_1 );
+			appendNode$1$1( input_1, label_1 );
+
+			input_1.checked = input_1.__value === state.drawer.side;
+
+			appendNode$1$1( text_6, label_1 );
+			appendNode$1$1( li_2, ul );
+			appendNode$1$1( label_2, li_2 );
+			appendNode$1$1( input_2, label_2 );
+
+			input_2.checked = input_2.__value === state.drawer.side;
+
+			appendNode$1$1( text_8, label_2 );
+			appendNode$1$1( li_3, ul );
+			appendNode$1$1( label_3, li_3 );
+			appendNode$1$1( input_3, label_3 );
+
+			input_3.checked = input_3.__value === state.drawer.side;
+
+			appendNode$1$1( text_10, label_3 );
+			insertNode$1$1( text_13, target, anchor );
+			appendNode$1$1( button, drawer._slotted.default );
+			appendNode$1$1( i, button );
+			appendNode$1$1( text_15, drawer._slotted.default );
+			appendNode$1$1( div, drawer._slotted.default );
+			appendNode$1$1( h3, div );
+			appendNode$1$1( text_16, h3 );
+			drawer._fragment.mount( target, anchor );
+		},
+
+		update: function ( changed, state ) {
+			if ( !input_updating ) {
+				input.checked = input.__value === state.drawer.side;
+			}
+
+			if ( !input_1_updating ) {
+				input_1.checked = input_1.__value === state.drawer.side;
+			}
+
+			if ( !input_2_updating ) {
+				input_2.checked = input_2.__value === state.drawer.side;
+			}
+
+			if ( !input_3_updating ) {
+				input_3.checked = input_3.__value === state.drawer.side;
+			}
+
+			if ( ( changed.arrow ) && i_class_value !== ( i_class_value = "fa fa-chevron-" + ( state.arrow ) ) ) {
+				i.className = i_class_value;
+			}
+
+			var drawer_changes = {};
+			if ( changed.drawer ) drawer_changes.side = state.drawer.side;
+			if ( !drawer_updating.open && changed.drawer ) {
+				drawer_changes.open = state.drawer.open;
+				drawer_updating.open = true;
+			}
+			if ( !drawer_updating.closing && changed.drawer ) {
+				drawer_changes.closing = state.drawer.closing;
+				drawer_updating.closing = true;
+			}
+			if ( !drawer_updating.closed && changed.drawer ) {
+				drawer_changes.closed = state.drawer.closed;
+				drawer_updating.closed = true;
+			}
+			drawer._set( drawer_changes );
+			drawer_updating = {};
+
+			
+		},
+
+		unmount: function () {
+			detachNode$1$1( h1 );
+			detachNode$1$1( text_1 );
+			detachNode$1$1( fieldset );
+			detachNode$1$1( text_13 );
+			drawer._fragment.unmount();
+		},
+
+		destroy: function () {
+			component._bindingGroups[0].splice( component._bindingGroups[0].indexOf( input ), 1 );
+
+			removeListener$1( input, 'change', input_change_handler );
+
+			component._bindingGroups[0].splice( component._bindingGroups[0].indexOf( input_1 ), 1 );
+
+			removeListener$1( input_1, 'change', input_1_change_handler );
+
+			component._bindingGroups[0].splice( component._bindingGroups[0].indexOf( input_2 ), 1 );
+
+			removeListener$1( input_2, 'change', input_2_change_handler );
+
+			component._bindingGroups[0].splice( component._bindingGroups[0].indexOf( input_3 ), 1 );
+
+			removeListener$1( input_3, 'change', input_3_change_handler );
+			removeListener$1( button, 'click', click_handler );
+			drawer.destroy( false );
+			if ( component.refs.drawer === drawer ) component.refs.drawer = null;
+		}
+	};
+}
+
+function Demo ( options ) {
+	this.options = options;
+	this.refs = {};
+	this._state = assign$1$1( template.data(), options.data );
+	this._recompute( {}, this._state, {}, true );
+	this._bindingGroups = [ [] ];
+
+	this._observers = {
+		pre: Object.create( null ),
+		post: Object.create( null )
+	};
+
+	this._handlers = Object.create( null );
+
+	this._root = options._root || this;
+	this._yield = options._yield;
+	this._bind = options._bind;
+
+	if ( !document.getElementById( 'svelte-2558650438-style' ) ) add_css();
+
+	if ( !options._root ) {
+		this._oncreate = [];
+		this._beforecreate = [];
+		this._aftercreate = [];
+	}
+
+	this._fragment = create_main_fragment( this._state, this );
+
+	if ( options.target ) {
+		this._fragment.create();
+		this._fragment.mount( options.target, options.anchor || null );
+	}
+
+	if ( !options._root ) {
+		this._lock = true;
+		callAll$1$1(this._beforecreate);
+		callAll$1$1(this._oncreate);
+		callAll$1$1(this._aftercreate);
+		this._lock = false;
+	}
+}
+
+assign$1$1( Demo.prototype, proto$1$1 );
+
+Demo.prototype._recompute = function _recompute ( changed, state, oldState, isInitial ) {
+	if ( isInitial || changed.drawer ) {
+		if ( differs$1$1( ( state.arrow = template.computed.arrow( state.drawer ) ), oldState.arrow ) ) changed.arrow = true;
+	}
+};
+
+window.app = new Demo({ target: document.getElementById('app') });
+
+}());

@@ -30,7 +30,13 @@
   </ul>
 </fieldset>
 
-<Drawer ref:drawer bind:isOpen="isOpen" side="{{ drawer.side }}">
+<Drawer
+  ref:drawer
+  bind:open="drawer.open"
+  bind:closing="drawer.closing"
+  bind:closed="drawer.closed"
+  side="{{ drawer.side }}"
+>
   <button
     class="drawer-toggle btn btn-default"
     on:click="refs.drawer.toggle()"
@@ -39,6 +45,7 @@
   </button>
 
   <div class="drawer-content">
+    <h3>Drawer Content</h3>
   </div>
 </Drawer>
 
@@ -59,8 +66,8 @@ export default {
   },
 
   computed: {
-    arrow: (drawer, isOpen) => {
-      const side = isOpen ? drawer.side : getOppositeSide(drawer.side)
+    arrow: (drawer) => {
+      const side = (drawer.closing || drawer.closed) ? getOppositeSide(drawer.side) : drawer.side
       return sideToArrowMap[side] || side
     }
   }
@@ -71,6 +78,7 @@ export default {
 
 .drawer-toggle {
   position: absolute;
+  transition: none;
 }
 
 :global(.axis-x .drawer-toggle) {
@@ -100,6 +108,7 @@ export default {
   padding: 20px;
   box-sizing: border-box;
 }
+
 :global(.axis-x .drawer-content) {
   height: 100%;
   width: 275px;
