@@ -41,11 +41,17 @@ const DEFAULTS = {
   zIndexBase: 1
   //push: false // false, element/ref // TODO: push other content over when opening
 }
-Object.freeze(DEFAULTS)
+const FIRES = {
+  open: 'open',
+  opening: 'opening',
+  closing: 'closing',
+  closed: 'closed'
+}
+;[ DEFAULTS, FIRES ].forEach(Object.freeze)
 
 export default {
   setup (Drawer) {
-    Drawer.DEFAULTS = DEFAULTS
+    Object.assign(Drawer, { DEFAULTS, FIRES })
   },
 
   components: { Scrim },
@@ -57,11 +63,26 @@ export default {
   computed: {
     open: percentOpen => percentOpen === 100,
     closed: percentOpen => percentOpen < 1,
+    transitioning: (open, closed) => !open && !closed,
+    opening: (transitioning, percentOpen, previousPercentOpen) =>
+      transitioning && (percentOpen > previousPercentOpen),
+    closing: (transitioning, closed, percentOpen, previousPercentOpen) =>
+      transitioning && (percentOpen < previousPercentOpen),
     axis: side => side === 'left' || side === 'right' ? 'x' : 'y',
     translate: (percentOpen, side, axis) => {
       const amount = isLeadingSide(side) ? percentOpen - 100 : 100 - percentOpen
       return axis === 'x' ? { x: amount, y: 0 } : { x: 0, y: amount }
-    },
+    }
+  },
+
+  oncreate () {
+    this.observe('percentOpen', (percentOpen, previousPercentOpen) => {
+      this.set({ previousPercentOpen })
+    })
+
+    // watch data and fire corresponding events
+    Object.keys(FIRES)
+      .forEach(property => this.observe(property, v => v && this.fire(property)))
   },
 
   methods: {
@@ -75,20 +96,17 @@ export default {
     },
 
     open ({ smooth = true } = {}) {
-      this.set({ opening: true, closing: false })
       return this.setPercentOpen(100, { smooth })
-        .then(() => this.set({ opening: false }))
     },
 
     close ({ smooth = true } = {}) {
-      this.set({ closing: true, opening: false })
-      this.setPercentOpen(0, { smooth })
-        .then(() => this.set({ closing: false }))
+      return this.setPercentOpen(0, { smooth })
     },
 
     toggle ({ smooth = true } = {}) {
       const shouldClose = this.get('open') || this.get('opening')
-      this[shouldClose ? 'close' : 'open']({ smooth })
+      const method = shouldClose ? 'close' : 'open'
+      return this[method]({ smooth })
     }
   }
 }
