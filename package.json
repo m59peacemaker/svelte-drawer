@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "just-clamp": "^1.0.0",
+    "svelte-extras": "^1.5.3",
     "svelte-scrim": "^0.1.0"
   }
 }

@@ -3,22 +3,23 @@
     svelte-drawer
     side-{{ side }}
     axis-{{ axis }}
-    {{ isOpen ? 'open' : 'closed' }}
-    {{ shouldTransition ? 'smooth' : '' }}
   "
+  data-open="{{ open }}"
+  data-opening="{{ opening }}"
+  data-closing="{{ closing }}"
+  data-closed="{{ closed }}"
   style="
     transform: translate3d({{ translate.x }}%, {{ translate.y }}%, 0);
     z-index: {{ zIndexBase + 1 }};
   "
-  on:transitionend="set('temporarySmooth', undefined)"
 >
   <slot></slot>
 </div>
 
-{{#if scrim && isOpen}}
+{{#if scrim && !closed && !closing}}
   <div
     style="z-index: {{ zIndexBase }};"
-    on:click="set({ open: false })"
+    on:click="close()"
   >
     <slot name="scrim">
       <Scrim/>
@@ -27,14 +28,15 @@
 {{/if}}
 
 <script>
+import { spring } from 'svelte-extras'
 import Scrim from 'svelte-scrim'
 import clamp from 'just-clamp'
+
 const isLeadingSide = side => side === 'left' || side === 'top'
 
 const DEFAULTS = {
+  percentOpen: 0,
   side: 'left',
-  open: false, // true, false, 0 - 100 (percent)
-  smooth: true,
   scrim: true,
   zIndexBase: 1
   //push: false // false, element/ref // TODO: push other content over when opening
@@ -53,30 +55,40 @@ export default {
   },
 
   computed: {
-    percentOpen: open => !open ? 0 : (open === true ? 100 : clamp(0, 100, open)),
-    isOpen: percentOpen => percentOpen === 100,
+    open: percentOpen => percentOpen === 100,
+    closed: percentOpen => percentOpen < 1,
     axis: side => side === 'left' || side === 'right' ? 'x' : 'y',
     translate: (percentOpen, side, axis) => {
       const amount = isLeadingSide(side) ? percentOpen - 100 : 100 - percentOpen
       return axis === 'x' ? { x: amount, y: 0 } : { x: 0, y: amount }
     },
-    shouldTransition: (smooth, temporarySmooth) =>
-      temporarySmooth !== undefined ? temporarySmooth : smooth
   },
 
   methods: {
+    spring,
+
+    setPercentOpen (percent, { smooth = true } = {}) {
+      const percentOpen = clamp(0, percent, 100)
+      return smooth
+        ? this.spring('percentOpen', percentOpen, { stiffness: 0.2, damping: 0.9 })
+        : Promise.resolve(this.set({ percentOpen }))
+    },
+
     open ({ smooth = true } = {}) {
-      this.set({ open: true, temporarySmooth: smooth })
+      this.set({ opening: true, closing: false })
+      return this.setPercentOpen(100, { smooth })
+        .then(() => this.set({ opening: false }))
     },
 
     close ({ smooth = true } = {}) {
-      this.set({ open: false, temporarySmooth: smooth })
+      this.set({ closing: true, opening: false })
+      this.setPercentOpen(0, { smooth })
+        .then(() => this.set({ closing: false }))
     },
 
     toggle ({ smooth = true } = {}) {
-      const open = !this.get('isOpen')
-      this.set({ open, temporarySmooth: smooth })
-      return { open }
+      const shouldClose = this.get('open') || this.get('opening')
+      this[shouldClose ? 'close' : 'open']({ smooth })
     }
   }
 }
@@ -88,10 +100,6 @@ export default {
   position: fixed;
   display: inline;
   transform: translate3d(0, 0, 0);
-}
-
-.svelte-drawer.smooth {
-  transition: transform 300ms;
 }
 
 .axis-x {
