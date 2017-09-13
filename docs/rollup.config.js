@@ -12,19 +12,10 @@ const Plugins = () => [
 
 export default [
   {
-    input: 'src/Drawer.html',
+    input: 'src/docs.js',
     output: {
-      file: 'build/Drawer.js',
-      format: 'es'
-    },
-    plugins: Plugins()
-  },
-
-  {
-    input: 'src/Drawer.html',
-    output: {
-      file: 'build/Drawer.cjs.js',
-      format: 'cjs'
+      file: 'build/docs.js',
+      format: 'iife',
     },
     plugins: Plugins()
   }

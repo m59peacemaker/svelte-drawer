@@ -1,0 +1,112 @@
+<h1>svelte-drawer</h1>
+
+<fieldset class="drawer-side">
+  <legend>Side</legend>
+  <ul>
+    <li>
+      <label>
+        <input type="radio" name="drawer-side" value="left" bind:group="drawer.side"/>
+        left
+      </label>
+    </li>
+    <li>
+      <label>
+        <input type="radio" name="drawer-side" value="right" bind:group="drawer.side"/>
+        right
+      </label>
+    </li>
+    <li>
+      <label>
+        <input type="radio" name="drawer-side" value="top" bind:group="drawer.side"/>
+        top
+      </label>
+    </li>
+    <li>
+      <label>
+        <input type="radio" name="drawer-side" value="bottom" bind:group="drawer.side"/>
+        bottom
+      </label>
+    </li>
+  </ul>
+</fieldset>
+
+<Drawer ref:drawer bind:isOpen="isOpen" side="{{ drawer.side }}">
+  <button
+    class="drawer-toggle btn btn-default"
+    on:click="refs.drawer.toggle()"
+  >
+    <i class="fa fa-chevron-{{ arrow }}"></i>
+  </button>
+
+  <div class="drawer-content">
+  </div>
+</Drawer>
+
+<script>
+import Drawer from '../../'
+import OppositeCalculator from './lib/opposite-calculator'
+
+const getOppositeSide = OppositeCalculator([ 'left', 'right' ], [ 'top', 'bottom' ])
+const sideToArrowMap = { top: 'up', bottom: 'down' }
+
+export default {
+  components: { Drawer },
+
+  data () {
+    return {
+      drawer: Object.assign({}, Drawer.DEFAULTS)
+    }
+  },
+
+  computed: {
+    arrow: (drawer, isOpen) => {
+      const side = isOpen ? drawer.side : getOppositeSide(drawer.side)
+      return sideToArrowMap[side] || side
+    }
+  }
+}
+</script>
+
+<style>
+
+.drawer-toggle {
+  position: absolute;
+}
+
+:global(.axis-x .drawer-toggle) {
+  top: 50%;
+  transform: translateY(-50%);
+}
+:global(.axis-y .drawer-toggle) {
+  left: 50%;
+  transform: translateX(-50%);
+}
+:global(.side-left .drawer-toggle) {
+  left: 100%;
+}
+:global(.side-right .drawer-toggle) {
+  right: 100%;
+}
+:global(.side-top .drawer-toggle) {
+  top: 100%;
+}
+:global(.side-bottom .drawer-toggle) {
+  bottom: 100%;
+}
+
+.drawer-content {
+  background: white;
+  overflow: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+:global(.axis-x .drawer-content) {
+  height: 100%;
+  width: 275px;
+}
+:global(.axis-y .drawer-content) {
+  height: 275px;
+  width: 100%;
+}
+
+</style>
