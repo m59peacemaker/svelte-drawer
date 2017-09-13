@@ -11,32 +11,45 @@
     z-index: {{ zIndexBase + 1 }};
   "
   on:transitionend="set('temporarySmooth', undefined)"
-><slot></slot></div>
+>
+  <slot></slot>
+</div>
 
 {{#if scrim && isOpen}}
-  <!-- TODO: make/use svelte-scrim and slot to provide a different scrim -->
-  <!-- <slot name="scrim"><Scrim/></slot> -->
   <div
-    class="svelte-drawer-scrim"
     style="z-index: {{ zIndexBase }};"
     on:click="set({ open: false })"
-  ></div>
+  >
+    <slot name="scrim">
+      <Scrim/>
+    </slot>
+  </div>
 {{/if}}
 
 <script>
-const clamp = (min, max, n) => Math.max(min, Math.min(max, n))
+import Scrim from 'svelte-scrim'
+import clamp from 'just-clamp'
 const isLeadingSide = side => side === 'left' || side === 'top'
 
+const DEFAULTS = {
+  side: 'left',
+  open: false, // true, false, 0 - 100 (percent)
+  smooth: true,
+  scrim: true,
+  zIndexBase: 1
+  //push: false // false, element/ref // TODO: push other content over when opening
+}
+Object.freeze(DEFAULTS)
+
 export default {
+  setup (Drawer) {
+    Drawer.DEFAULTS = DEFAULTS
+  },
+
+  components: { Scrim },
+
   data () {
-    return {
-      side: 'left',
-      open: false, // true, false, 0 - 100 (percent)
-      smooth: true,
-      scrim: true,
-      zIndexBase: 1
-      //push: false // false, element/ref // TODO: push other content over when opening
-    }
+    return Object.assign({}, DEFAULTS)
   },
 
   computed: {
@@ -67,7 +80,6 @@ export default {
   position: fixed;
   display: inline;
   transform: translate3d(0, 0, 0);
-  will-change: transform;
 }
 
 .svelte-drawer.smooth {
@@ -90,15 +102,5 @@ export default {
 .side-right  { right: 0 }
 .side-bottom { bottom: 0 }
 .side-left   { left: 0 }
-
-.svelte-drawer-scrim {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: #000000;
-  opacity: 0.3;
-}
 
 </style>

@@ -3,15 +3,18 @@
   "version": "0.0.3",
   "description": "A drawer (a.k.a side menu) component.",
   "main": "build/Drawer.cjs.js",
-  "module": "build/Drawer.mjs",
+  "module": "build/Drawer.js",
   "svelte": "src/Drawer.html",
   "svelte.root": "src",
   "scripts": {
-    "build": "rollup -c",
-    "watch": "onchange -i 'src/**/*' -- npm run build",
-    "dev-server": "live-server --no-browser docs",
+    "build-main": "rollup -c",
+    "build-docs": "(cd docs && npm run build)",
+    "build": "npm run build-main && npm run build-docs",
+    "clean": "rm -r build element docs/build || true",
+    "watch": "onchange -i 'src/**/*' 'docs/src/**/*' -- npm run build",
+    "dev-server": "live-server --watch=./docs/build,./docs/index.html --no-browser docs",
     "dev": "sh -c 'npm run watch & npm run dev-server & wait'",
-    "prepublish": "npm run build"
+    "prepublish": "npm run clean && npm run build"
   },
   "keywords": [
     "svelte",
@@ -27,9 +30,15 @@
   "author": "Johnny Hauser <johnnyhauser@gmail.com>",
   "license": "CC0-1.0",
   "devDependencies": {
+    "live-server": "^1.2.0",
+    "onchange": "^3.2.1",
     "rollup": "^0.49.2",
     "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-svelte": "^3.1.0"
+  },
+  "dependencies": {
+    "just-clamp": "^1.0.0",
+    "svelte-scrim": "^0.1.0"
   }
 }
