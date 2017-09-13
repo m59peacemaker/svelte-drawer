@@ -744,11 +744,16 @@ const DEFAULTS = {
   zIndexBase: 1
   //push: false // false, element/ref // TODO: push other content over when opening
 };
-Object.freeze(DEFAULTS);
+const FIRES = {
+  open: 'open',
+  opening: 'opening',
+  closing: 'closing',
+  closed: 'closed'
+};[ DEFAULTS, FIRES ].forEach(Object.freeze);
 
 return {
   setup (Drawer) {
-    Drawer.DEFAULTS = DEFAULTS;
+    Object.assign(Drawer, { DEFAULTS, FIRES });
   },
 
   data () {
@@ -758,11 +763,26 @@ return {
   computed: {
     open: percentOpen => percentOpen === 100,
     closed: percentOpen => percentOpen < 1,
+    transitioning: (open, closed) => !open && !closed,
+    opening: (transitioning, percentOpen, previousPercentOpen) =>
+      transitioning && (percentOpen > previousPercentOpen),
+    closing: (transitioning, closed, percentOpen, previousPercentOpen) =>
+      transitioning && (percentOpen < previousPercentOpen),
     axis: side => side === 'left' || side === 'right' ? 'x' : 'y',
     translate: (percentOpen, side, axis) => {
       const amount = isLeadingSide(side) ? percentOpen - 100 : 100 - percentOpen;
       return axis === 'x' ? { x: amount, y: 0 } : { x: 0, y: amount }
-    },
+    }
+  },
+
+  oncreate () {
+    this.observe('percentOpen', (percentOpen, previousPercentOpen) => {
+      this.set({ previousPercentOpen });
+    });
+
+    // watch data and fire corresponding events
+    Object.keys(FIRES)
+      .forEach(property => this.observe(property, v => v && this.fire(property)));
   },
 
   methods: {
@@ -776,33 +796,30 @@ return {
     },
 
     open ({ smooth = true } = {}) {
-      this.set({ opening: true, closing: false });
       return this.setPercentOpen(100, { smooth })
-        .then(() => this.set({ opening: false }))
     },
 
     close ({ smooth = true } = {}) {
-      this.set({ closing: true, opening: false });
-      this.setPercentOpen(0, { smooth })
-        .then(() => this.set({ closing: false }));
+      return this.setPercentOpen(0, { smooth })
     },
 
     toggle ({ smooth = true } = {}) {
       const shouldClose = this.get('open') || this.get('opening');
-      this[shouldClose ? 'close' : 'open']({ smooth });
+      const method = shouldClose ? 'close' : 'open';
+      return this[method]({ smooth })
     }
   }
 }
 }());
 
 function encapsulateStyles ( node ) {
-	setAttribute$1( node, 'svelte-1589842680', '' );
+	setAttribute$1( node, 'svelte-604543570', '' );
 }
 
 function add_css () {
 	var style = createElement$1( 'style' );
-	style.id = 'svelte-1589842680-style';
-	style.textContent = ".svelte-drawer[svelte-1589842680]{position:fixed;display:inline;transform:translate3d(0, 0, 0)}.axis-x[svelte-1589842680]{top:0;bottom:0;height:100%}.axis-y[svelte-1589842680]{left:0;right:0;width:100%}.side-top[svelte-1589842680]{top:0 }.side-right[svelte-1589842680]{right:0 }.side-bottom[svelte-1589842680]{bottom:0 }.side-left[svelte-1589842680]{left:0 }";
+	style.id = 'svelte-604543570-style';
+	style.textContent = ".svelte-drawer[svelte-604543570]{position:fixed;display:inline;transform:translate3d(0, 0, 0)}.axis-x[svelte-604543570]{top:0;bottom:0;height:100%}.axis-y[svelte-604543570]{left:0;right:0;width:100%}.side-top[svelte-604543570]{top:0 }.side-right[svelte-604543570]{right:0 }.side-bottom[svelte-604543570]{bottom:0 }.side-left[svelte-604543570]{left:0 }";
 	appendNode$1( style, document.head );
 }
 
@@ -984,13 +1001,17 @@ function Drawer ( options ) {
 	this._bind = options._bind;
 	this._slotted = options.slots || {};
 
-	if ( !document.getElementById( 'svelte-1589842680-style' ) ) add_css();
+	if ( !document.getElementById( 'svelte-604543570-style' ) ) add_css();
+
+	var oncreate = template.oncreate.bind( this );
 
 	if ( !options._root ) {
-		this._oncreate = [];
+		this._oncreate = [oncreate];
 		this._beforecreate = [];
 		this._aftercreate = [];
-	}
+	} else {
+	 	this._root._oncreate.push(oncreate);
+	 }
 
 	this.slots = {};
 
@@ -1016,6 +1037,18 @@ Drawer.prototype._recompute = function _recompute ( changed, state, oldState, is
 	if ( isInitial || changed.percentOpen ) {
 		if ( differs$1( ( state.open = template.computed.open( state.percentOpen ) ), oldState.open ) ) changed.open = true;
 		if ( differs$1( ( state.closed = template.computed.closed( state.percentOpen ) ), oldState.closed ) ) changed.closed = true;
+	}
+
+	if ( isInitial || changed.open || changed.closed ) {
+		if ( differs$1( ( state.transitioning = template.computed.transitioning( state.open, state.closed ) ), oldState.transitioning ) ) changed.transitioning = true;
+	}
+
+	if ( isInitial || changed.transitioning || changed.percentOpen || changed.previousPercentOpen ) {
+		if ( differs$1( ( state.opening = template.computed.opening( state.transitioning, state.percentOpen, state.previousPercentOpen ) ), oldState.opening ) ) changed.opening = true;
+	}
+
+	if ( isInitial || changed.transitioning || changed.closed || changed.percentOpen || changed.previousPercentOpen ) {
+		if ( differs$1( ( state.closing = template.computed.closing( state.transitioning, state.closed, state.percentOpen, state.previousPercentOpen ) ), oldState.closing ) ) changed.closing = true;
 	}
 
 	if ( isInitial || changed.side ) {
