@@ -65,7 +65,15 @@ export default {
   },
 
   methods: {
-    toggle: function ({ smooth = true } = {}) {
+    open ({ smooth = true } = {}) {
+      this.set({ open: true, temporarySmooth: smooth })
+    },
+
+    close ({ smooth = true } = {}) {
+      this.set({ open: false, temporarySmooth: smooth })
+    },
+
+    toggle ({ smooth = true } = {}) {
       const open = !this.get('isOpen')
       this.set({ open, temporarySmooth: smooth })
       return { open }
